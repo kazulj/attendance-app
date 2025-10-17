@@ -37,6 +37,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// 管理者ページ
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
 // サーバー起動
 app.listen(PORT, () => {
   console.log(`勤怠管理アプリがポート${PORT}で起動しました`);
