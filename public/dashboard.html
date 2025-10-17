@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ダッシュボード - 勤怠管理</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    h1 { color: #333; margin-bottom: 20px; }
+    .user-info { margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; }
+    .status { padding: 15px; background: #f0f0f0; border-radius: 5px; margin-bottom: 20px; }
+    .buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 20px 0; }
+    button {
+      padding: 15px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+    .btn-primary { background: #667eea; color: white; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-warning { background: #ffc107; color: #333; }
+    .btn-danger { background: #dc3545; color: white; }
+    .records { margin-top: 30px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #667eea; color: white; }
+    .hidden { display: none; }
+    .nav-buttons { margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🕐 勤怠管理ダッシュボード</h1>
+
+    <div class="user-info">
+      <p id="user-info">読み込み中...</p>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn-primary" onclick="location.href='/'">ホーム</button>
+      <button id="admin-link" class="btn-danger hidden" onclick="location.href='/admin'">管理者画面</button>
+      <button class="btn-primary" onclick="logout()">ログアウト</button>
+    </div>
+
+    <div class="status">
+      <h3>現在の状態</h3>
+      <p id="status-message">読み込み中...</p>
+    </div>
+
+    <div class="buttons">
+      <button class="btn-success" onclick="clockIn()">出勤</button>
+      <button class="btn-warning" onclick="breakStart()">休憩開始</button>
+      <button class="btn-primary" onclick="breakEnd()">休憩終了</button>
+      <button class="btn-danger" onclick="clockOut()">退勤</button>
+    </div>
+
+    <div class="records">
+      <h3>勤怠記録</h3>
+      <table id="records-table">
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th>出勤</th>
+            <th>退勤</th>
+            <th>休憩開始</th>
+            <th>休憩終了</th>
+          </tr>
+        </thead>
+        <tbody id="records-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (!res.ok) {
+          alert('ログインが必要です');
+          location.href = '/';
+          return;
+        }
+
+        const user = await res.json();
+        console.log('🔍 デバッグ: ログインユーザー情報', user);
+
+        document.getElementById('user-info').textContent =
+          `ようこそ、${user.username} さん（権限: ${user.role === 'admin' ? '管理者' : 'ユーザー'}）`;
+
+        // 管理者の場合、管理者画面リンクを表示
+        if (user.role === 'admin') {
+          console.log('✅ 管理者として認識されました');
+          document.getElementById('admin-link').classList.remove('hidden');
+        }
+
+        loadStatus();
+        loadRecords();
+      } catch (error) {
+        console.error('認証チェックエラー:', error);
+        alert('認証エラーが発生しました');
+        location.href = '/';
+      }
+    }
+
+    async function loadStatus() {
+      try {
+        const res = await fetch('/api/attendance/status');
+        const data = await res.json();
+        document.getElementById('status-message').textContent = data.message;
+      } catch (error) {
+        document.getElementById('status-message').textContent = 'エラー';
+      }
+    }
+
+    async function loadRecords() {
+      try {
+        const res = await fetch('/api/attendance/records');
+        const records = await res.json();
+        const tbody = document.getElementById('records-body');
+        tbody.innerHTML = records.map(r => `
+          <tr>
+            <td>${new Date(r.clock_in).toLocaleDateString()}</td>
+            <td>${r.clock_in ? new Date(r.clock_in).toLocaleTimeString() : '-'}</td>
+            <td>${r.clock_out ? new Date(r.clock_out).toLocaleTimeString() : '-'}</td>
+            <td>${r.break_start ? new Date(r.break_start).toLocaleTimeString() : '-'}</td>
+            <td>${r.break_end ? new Date(r.break_end).toLocaleTimeString() : '-'}</td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        console.error('記録読み込みエラー:', error);
+      }
+    }
+
+    async function clockIn() {
+      const res = await fetch('/api/attendance/clock-in', { method: 'POST' });
+      const data = await res.json();
+      alert(data.message || data.error);
+      loadStatus();
+      loadRecords();
+    }
+
+    async function clockOut() {
+      const res = await fetch('/api/attendance/clock-out', { method: 'POST' });
+      const data = await res.json();
+      alert(data.message || data.error);
+      loadStatus();
+      loadRecords();
+    }
+
+    async function breakStart() {
+      const res = await fetch('/api/attendance/break-start', { method: 'POST' });
+      const data = await res.json();
+      alert(data.message || data.error);
+      loadStatus();
+    }
+
+    async function breakEnd() {
+      const res = await fetch('/api/attendance/break-end', { method: 'POST' });
+      const data = await res.json();
+      alert(data.message || data.error);
+      loadStatus();
+    }
+
+    async function logout() {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      location.href = '/';
+    }
+
+    // ページ読み込み時に認証チェック
+    checkAuth();
+  </script>
+</body>
+</html>

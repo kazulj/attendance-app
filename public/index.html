@@ -163,6 +163,8 @@
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
 
+      console.log('🔍 デバッグ: ログイン試行', { username });
+
       try {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
@@ -170,15 +172,21 @@
           body: JSON.stringify({ username, password })
         });
 
+        console.log('🔍 デバッグ: ログインレスポンスステータス', res.status);
+
         if (res.ok) {
-          alert('ログイン成功！');
-          checkAuth();
+          const data = await res.json();
+          console.log('🔍 デバッグ: ログイン成功データ', data);
+          alert('ログイン成功！ダッシュボードに移動します。');
+          location.href = '/dashboard';
         } else {
           const data = await res.json();
+          console.error('🔍 デバッグ: ログイン失敗', data);
           alert('ログイン失敗: ' + data.error);
         }
       } catch (error) {
-        alert('ログインエラー');
+        console.error('🔍 デバッグ: ログインエラー', error);
+        alert('ログインエラー: ' + error.message);
       }
     }
 
@@ -199,7 +207,7 @@
           const data = await res.json();
           console.log('🔍 デバッグ: 登録レスポンス', data);
           alert(data.message || '登録成功！');
-          checkAuth();
+          location.href = '/dashboard';
         } else {
           const data = await res.json();
           alert('登録失敗: ' + data.error);
