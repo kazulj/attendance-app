@@ -125,13 +125,20 @@
         const res = await fetch('/api/auth/me');
         if (res.ok) {
           const user = await res.json();
+          console.log('🔍 デバッグ: ログインユーザー情報', user);
+          console.log('🔍 デバッグ: ユーザーのrole =', user.role);
+          console.log('🔍 デバッグ: 管理者判定 =', user.role === 'admin');
+
           document.getElementById('auth-section').classList.add('hidden');
           document.getElementById('register-section').classList.add('hidden');
           document.getElementById('main-content').classList.remove('hidden');
 
           // 管理者の場合、管理者画面リンクを表示
           if (user.role === 'admin') {
+            console.log('✅ 管理者として認識されました。管理者ボタンを表示します。');
             document.getElementById('admin-link').classList.remove('hidden');
+          } else {
+            console.log('ℹ️ 通常ユーザーとして認識されました。管理者ボタンは非表示です。');
           }
 
           loadStatus();
@@ -189,7 +196,9 @@
         });
 
         if (res.ok) {
-          alert('登録成功！');
+          const data = await res.json();
+          console.log('🔍 デバッグ: 登録レスポンス', data);
+          alert(data.message || '登録成功！');
           checkAuth();
         } else {
           const data = await res.json();
