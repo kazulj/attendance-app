@@ -10,9 +10,16 @@ router.post('/register', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // 既存ユーザー数を確認
+    const countResult = await pool.query('SELECT COUNT(*) FROM users');
+    const userCount = parseInt(countResult.rows[0].count);
+
+    // ユーザーが0人の場合は管理者、それ以外は通常ユーザー
+    const role = userCount === 0 ? 'admin' : 'user';
+
     const result = await pool.query(
       'INSERT INTO users (username, email, password, full_name, role) VALUES ($1, $2, $3, $4, $5) RETURNING id, username, role',
-      [username, email, hashedPassword, full_name, 'user']
+      [username, email, hashedPassword, full_name, role]
     );
 
     const user = result.rows[0];
@@ -20,7 +27,11 @@ router.post('/register', async (req, res) => {
     req.session.username = user.username;
     req.session.role = user.role;
 
-    res.json({ message: '登録成功', user: { id: user.id, username: user.username, role: user.role } });
+    const message = role === 'admin'
+      ? '登録成功！最初のユーザーとして管理者権限が付与されました。'
+      : '登録成功';
+
+    res.json({ message, user: { id: user.id, username: user.username, role: user.role } });
   } catch (error) {
     res.status(400).json({ error: 'ユーザー登録に失敗しました: ' + error.message });
   }
