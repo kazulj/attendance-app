@@ -96,7 +96,10 @@
         <button class="btn-danger" onclick="clockOut()">退勤</button>
       </div>
 
-      <button class="btn-primary" onclick="logout()">ログアウト</button>
+      <div style="margin: 20px 0;">
+        <button class="btn-primary" onclick="logout()">ログアウト</button>
+        <button id="admin-link" class="btn-danger hidden" onclick="location.href='/admin.html'">管理者画面</button>
+      </div>
 
       <div class="records">
         <h3>勤怠記録</h3>
@@ -121,9 +124,16 @@
       try {
         const res = await fetch('/api/auth/me');
         if (res.ok) {
+          const user = await res.json();
           document.getElementById('auth-section').classList.add('hidden');
           document.getElementById('register-section').classList.add('hidden');
           document.getElementById('main-content').classList.remove('hidden');
+
+          // 管理者の場合、管理者画面リンクを表示
+          if (user.role === 'admin') {
+            document.getElementById('admin-link').classList.remove('hidden');
+          }
+
           loadStatus();
           loadRecords();
         }

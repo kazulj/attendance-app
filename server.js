@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const attendanceRoutes = require('./routes/attendance');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,6 +30,7 @@ app.use(express.static('public'));
 // ルート
 app.use('/api/auth', authRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/admin', adminRoutes);
 
 // メインページ
 app.get('/', (req, res) => {
