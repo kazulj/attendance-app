@@ -13,18 +13,48 @@ const adminRoutes = require('./routes/admin');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Renderなどのリバースプロキシを信頼
+app.set('trust proxy', 1);
+
+// セッションストアの設定
+let sessionStore;
+if (process.env.DATABASE_URL) {
+  // 本番環境: PostgreSQLセッションストア
+  const pgSession = require('connect-pg-simple')(session);
+  const { Pool } = require('pg');
+
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  });
+
+  sessionStore = new pgSession({
+    pool: pool,
+    tableName: 'session',
+    createTableIfMissing: true
+  });
+} else {
+  // 開発環境: メモリストア
+  sessionStore = undefined;
+}
+
 // ミドルウェア
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use(session({
+  store: sessionStore,
   secret: process.env.SESSION_SECRET || 'attendance-app-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 24時間
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 24時間
+    sameSite: 'lax'
   }
 }));
+
 app.use(express.static('public'));
 
 // ルート
