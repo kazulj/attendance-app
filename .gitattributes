@@ -1,0 +1,10 @@
+# Ensure all files are included in git
+* text=auto
+
+# Force include all CSS and JS files
+*.css text
+*.js text
+*.html text
+
+# Ensure public folder files are included
+public/** -diff
