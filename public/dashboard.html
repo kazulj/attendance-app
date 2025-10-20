@@ -4,46 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ダッシュボード - 勤怠管理</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 10px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-    h1 { color: #333; margin-bottom: 20px; }
-    .user-info { margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; }
-    .status { padding: 15px; background: #f0f0f0; border-radius: 5px; margin-bottom: 20px; }
-    .buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 20px 0; }
-    button {
-      padding: 15px;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-    .btn-primary { background: #667eea; color: white; }
-    .btn-success { background: #28a745; color: white; }
-    .btn-warning { background: #ffc107; color: #333; }
-    .btn-danger { background: #dc3545; color: white; }
-    .records { margin-top: 30px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-    th { background: #667eea; color: white; }
-    .hidden { display: none; }
-    .nav-buttons { margin-bottom: 20px; }
-  </style>
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <div class="container">
@@ -59,7 +20,7 @@
       <button class="btn-primary" onclick="logout()">ログアウト</button>
     </div>
 
-    <div class="status">
+    <div class="status-card">
       <h3>現在の状態</h3>
       <p id="status-message">読み込み中...</p>
     </div>
@@ -73,7 +34,8 @@
 
     <div class="records">
       <h3>勤怠記録</h3>
-      <table id="records-table">
+      <div class="table-wrapper">
+        <table id="records-table">
         <thead>
           <tr>
             <th>日付</th>
@@ -85,6 +47,7 @@
         </thead>
         <tbody id="records-body"></tbody>
       </table>
+      </div>
     </div>
   </div>
 
