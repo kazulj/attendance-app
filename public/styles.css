@@ -2179,3 +2179,369 @@ table th.sortable.sorted-desc::after {
     flex-basis: 100%;
   }
 }
+
+/* ========================================
+   COLORFUL DESIGN SYSTEM ENHANCEMENTS
+   ======================================== */
+
+/* ============================================
+   COLORFUL KPI CARDS
+   ============================================ */
+
+.kpi-card.indigo {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.kpi-card.indigo:hover {
+  box-shadow: var(--shadow-indigo);
+  border-color: var(--color-indigo);
+}
+
+.kpi-card.indigo .kpi-icon {
+  background: var(--gradient-kpi-indigo);
+}
+
+.kpi-card.purple {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(147, 51, 234, 0.05) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.kpi-card.purple:hover {
+  box-shadow: var(--shadow-purple);
+  border-color: var(--color-purple);
+}
+
+.kpi-card.purple .kpi-icon {
+  background: var(--gradient-kpi-purple);
+}
+
+.kpi-card.cyan {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(8, 145, 178, 0.05) 100%);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+}
+
+.kpi-card.cyan:hover {
+  box-shadow: var(--shadow-cyan);
+  border-color: var(--color-cyan);
+}
+
+.kpi-card.cyan .kpi-icon {
+  background: var(--gradient-kpi-cyan);
+}
+
+.kpi-card.orange {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, rgba(249, 115, 22, 0.05) 100%);
+  border: 1px solid rgba(251, 146, 60, 0.2);
+}
+
+.kpi-card.orange:hover {
+  box-shadow: var(--shadow-orange);
+  border-color: var(--color-orange);
+}
+
+.kpi-card.orange .kpi-icon {
+  background: var(--gradient-kpi-orange);
+}
+
+.kpi-card.pink {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(219, 39, 119, 0.05) 100%);
+  border: 1px solid rgba(236, 72, 153, 0.2);
+}
+
+.kpi-card.pink:hover {
+  box-shadow: var(--shadow-pink);
+  border-color: var(--color-pink);
+}
+
+.kpi-card.pink .kpi-icon {
+  background: var(--gradient-kpi-pink);
+}
+
+/* ============================================
+   COLORFUL SIDEBAR ICONS
+   ============================================ */
+
+.nav-item i {
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.nav-item:nth-child(1) i { color: var(--color-indigo); }
+.nav-item:nth-child(1):hover i { color: var(--color-indigo-hover); text-shadow: 0 0 20px var(--color-indigo); }
+
+.nav-item:nth-child(2) i { color: var(--color-green); }
+.nav-item:nth-child(2):hover i { color: var(--color-green-hover); text-shadow: 0 0 20px var(--color-green); }
+
+.nav-item:nth-child(3) i { color: var(--color-purple); }
+.nav-item:nth-child(3):hover i { color: var(--color-purple-hover); text-shadow: 0 0 20px var(--color-purple); }
+
+.nav-item:nth-child(4) i { color: var(--color-cyan); }
+.nav-item:nth-child(4):hover i { color: var(--color-cyan-hover); text-shadow: 0 0 20px var(--color-cyan); }
+
+.nav-item:nth-child(5) i { color: var(--color-amber); }
+.nav-item:nth-child(5):hover i { color: var(--color-amber-hover); text-shadow: 0 0 20px var(--color-amber); }
+
+.nav-item:nth-child(6) i { color: var(--color-pink); }
+.nav-item:nth-child(6):hover i { color: var(--color-pink-hover); text-shadow: 0 0 20px var(--color-pink); }
+
+.nav-item:nth-child(7) i { color: var(--color-rose); }
+.nav-item:nth-child(7):hover i { color: var(--color-rose-hover); text-shadow: 0 0 20px var(--color-rose); }
+
+/* ============================================
+   COLORFUL BUTTONS
+   ============================================ */
+
+.btn-success {
+  background: var(--gradient-success);
+  border: none;
+  color: white;
+  box-shadow: var(--shadow-green);
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.4);
+}
+
+.btn-warning {
+  background: var(--gradient-warning);
+  border: none;
+  color: white;
+  box-shadow: var(--shadow-amber);
+}
+
+.btn-warning:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(245, 158, 11, 0.4);
+}
+
+.btn-danger {
+  background: var(--gradient-danger);
+  border: none;
+  color: white;
+  box-shadow: var(--shadow-red);
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(239, 68, 68, 0.4);
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  border: none;
+  color: white;
+  box-shadow: var(--shadow-indigo);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
+}
+
+/* ============================================
+   GRADIENT BORDER ANIMATION
+   ============================================ */
+
+@keyframes rotate-border {
+  0% { border-image-source: var(--gradient-ocean); }
+  25% { border-image-source: var(--gradient-aurora); }
+  50% { border-image-source: var(--gradient-forest); }
+  75% { border-image-source: var(--gradient-sunset); }
+  100% { border-image-source: var(--gradient-ocean); }
+}
+
+.gradient-border {
+  position: relative;
+  border: 2px solid transparent;
+  background: var(--bg-card);
+  background-clip: padding-box;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: var(--gradient-mesh-rainbow);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.gradient-border:hover::before {
+  opacity: 1;
+}
+
+/* ============================================
+   COLORFUL BADGES
+   ============================================ */
+
+.badge {
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-admin {
+  background: var(--gradient-aurora);
+  color: white;
+  box-shadow: var(--shadow-purple);
+}
+
+.badge-user {
+  background: var(--gradient-ocean);
+  color: white;
+  box-shadow: var(--shadow-blue);
+}
+
+.badge-success {
+  background: var(--gradient-success);
+  color: white;
+  box-shadow: var(--shadow-green);
+}
+
+.badge-warning {
+  background: var(--gradient-warning);
+  color: white;
+  box-shadow: var(--shadow-amber);
+}
+
+.badge-danger {
+  background: var(--gradient-danger);
+  color: white;
+  box-shadow: var(--shadow-red);
+}
+
+/* ============================================
+   RAINBOW TEXT GRADIENT
+   ============================================ */
+
+.rainbow-text {
+  background: var(--gradient-mesh-rainbow);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+/* ============================================
+   COLORFUL AVATAR
+   ============================================ */
+
+.user-avatar {
+  background: var(--gradient-galaxy);
+  color: white;
+  box-shadow: var(--shadow-purple);
+  position: relative;
+  overflow: hidden;
+}
+
+.user-avatar::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+/* ============================================
+   INTERACTIVE FOCUS RINGS
+   ============================================ */
+
+input:focus, 
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-indigo);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), 
+              0 0 0 1px var(--color-indigo);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--color-indigo);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   GLOW ON HOVER EFFECT
+   ============================================ */
+
+.glow-hover {
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.glow-hover:hover {
+  filter: drop-shadow(0 0 20px currentColor);
+}
+
+/* ============================================
+   PULSING INDICATOR
+   ============================================ */
+
+.pulse {
+  animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+/* ============================================
+   STATUS DOTS WITH COLORS
+   ============================================ */
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+}
+
+.status-dot.online {
+  background: var(--color-green);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  animation: pulse-dot 2s infinite;
+}
+
+.status-dot.busy {
+  background: var(--color-amber);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+.status-dot.offline {
+  background: var(--text-tertiary);
+  box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.2);
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+}

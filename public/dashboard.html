@@ -110,7 +110,7 @@
       <!-- KPI Cards Grid -->
       <div class="kpi-grid">
         <!-- Today's Work Hours -->
-        <div class="kpi-card success stagger-item">
+        <div class="kpi-card indigo stagger-item">
           <div class="kpi-header">
             <div class="kpi-icon">
               <i class="fas fa-clock"></i>
@@ -126,7 +126,7 @@
         </div>
 
         <!-- This Month's Days -->
-        <div class="kpi-card stagger-item">
+        <div class="kpi-card cyan stagger-item">
           <div class="kpi-header">
             <div class="kpi-icon">
               <i class="fas fa-calendar-check"></i>
@@ -146,7 +146,7 @@
         </div>
 
         <!-- Average Clock In Time -->
-        <div class="kpi-card warning stagger-item">
+        <div class="kpi-card purple stagger-item">
           <div class="kpi-header">
             <div class="kpi-icon">
               <i class="fas fa-sun"></i>
@@ -162,7 +162,7 @@
         </div>
 
         <!-- Total Hours This Month -->
-        <div class="kpi-card danger stagger-item">
+        <div class="kpi-card orange stagger-item">
           <div class="kpi-header">
             <div class="kpi-icon">
               <i class="fas fa-business-time"></i>
@@ -472,8 +472,24 @@
           datasets: [{
             label: '勤務時間',
             data: weeklyData,
-            backgroundColor: 'rgba(102, 126, 234, 0.8)',
-            borderColor: 'rgba(102, 126, 234, 1)',
+            backgroundColor: [
+              'rgba(99, 102, 241, 0.8)',   // Monday - Indigo
+              'rgba(168, 85, 247, 0.8)',   // Tuesday - Purple
+              'rgba(6, 182, 212, 0.8)',    // Wednesday - Cyan
+              'rgba(16, 185, 129, 0.8)',   // Thursday - Green
+              'rgba(251, 146, 60, 0.8)',   // Friday - Orange
+              'rgba(236, 72, 153, 0.8)',   // Saturday - Pink
+              'rgba(251, 191, 36, 0.8)'    // Sunday - Yellow
+            ],
+            borderColor: [
+              'rgba(99, 102, 241, 1)',
+              'rgba(168, 85, 247, 1)',
+              'rgba(6, 182, 212, 1)',
+              'rgba(16, 185, 129, 1)',
+              'rgba(251, 146, 60, 1)',
+              'rgba(236, 72, 153, 1)',
+              'rgba(251, 191, 36, 1)'
+            ],
             borderWidth: 2,
             borderRadius: 8
           }]
@@ -491,17 +507,19 @@
           datasets: [{
             label: '出勤時刻',
             data: trendData.clockIn,
-            borderColor: 'rgba(16, 185, 129, 1)',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            borderColor: 'rgba(6, 182, 212, 1)',  // Cyan
+            backgroundColor: 'rgba(6, 182, 212, 0.1)',
             tension: 0.4,
-            fill: true
+            fill: true,
+            borderWidth: 3
           }, {
             label: '退勤時刻',
             data: trendData.clockOut,
-            borderColor: 'rgba(239, 68, 68, 1)',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            borderColor: 'rgba(251, 146, 60, 1)',  // Orange
+            backgroundColor: 'rgba(251, 146, 60, 0.1)',
             tension: 0.4,
-            fill: true
+            fill: true,
+            borderWidth: 3
           }]
         },
         options: chartDefaults
@@ -517,12 +535,18 @@
           datasets: [{
             data: distribution,
             backgroundColor: [
-              'rgba(102, 126, 234, 0.8)',
-              'rgba(16, 185, 129, 0.8)',
-              'rgba(239, 68, 68, 0.8)',
-              'rgba(245, 158, 11, 0.8)'
+              'rgba(99, 102, 241, 0.9)',   // Indigo - 通常勤務
+              'rgba(6, 182, 212, 0.9)',    // Cyan - 早出
+              'rgba(251, 146, 60, 0.9)',   // Orange - 残業
+              'rgba(168, 85, 247, 0.9)'    // Purple - 休憩
             ],
-            borderWidth: 0
+            borderColor: [
+              'rgba(99, 102, 241, 1)',
+              'rgba(6, 182, 212, 1)',
+              'rgba(251, 146, 60, 1)',
+              'rgba(168, 85, 247, 1)'
+            ],
+            borderWidth: 2
           }]
         },
         options: {
