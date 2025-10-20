@@ -11,100 +11,249 @@
 </head>
 <body class="preload">
   <!-- Dark Mode Toggle -->
-  <div class="theme-toggle" onclick="toggleTheme()" title="テーマ切り替え">
+  <div class="theme-toggle" onclick="toggleTheme()" title="テーマ切り替え (Ctrl+K)">
     <i class="fas fa-moon" id="theme-icon"></i>
   </div>
 
-  <div class="container">
-    <h1><i class="fas fa-chart-line"></i> 勤怠管理ダッシュボード</h1>
-
-    <div class="user-info">
-      <div class="user-avatar" id="user-avatar">U</div>
-      <div class="user-details">
-        <p id="user-name">読み込み中...</p>
-        <p class="user-role" id="user-role"></p>
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <i class="fas fa-clock"></i>
+        </div>
+        <h2 class="sidebar-title">勤怠管理</h2>
       </div>
-    </div>
 
-    <div class="nav-buttons">
-      <button class="btn-primary" onclick="location.href='/'">
-        <i class="fas fa-home"></i> ホーム
-      </button>
-      <button id="admin-link" class="btn-danger hidden" onclick="location.href='/admin'">
-        <i class="fas fa-user-shield"></i> 管理者画面
-      </button>
-      <button class="btn-primary" onclick="logout()">
-        <i class="fas fa-sign-out-alt"></i> ログアウト
-      </button>
-    </div>
+      <nav class="sidebar-nav">
+        <a href="/dashboard" class="nav-item active">
+          <i class="fas fa-home"></i>
+          <span>ダッシュボード</span>
+        </a>
+        <a href="#attendance" class="nav-item">
+          <i class="fas fa-calendar-check"></i>
+          <span>勤怠記録</span>
+        </a>
+        <a href="#statistics" class="nav-item">
+          <i class="fas fa-chart-line"></i>
+          <span>統計</span>
+        </a>
+        <a href="#settings" class="nav-item">
+          <i class="fas fa-cog"></i>
+          <span>設定</span>
+        </a>
+      </nav>
 
-    <div class="status-card">
-      <h3>現在の状態</h3>
-      <p id="status-message">読み込み中...</p>
-    </div>
-
-    <div class="buttons">
-      <button class="btn-success" onclick="clockIn()">
-        <i class="fas fa-sign-in-alt"></i> 出勤
-      </button>
-      <button class="btn-warning" onclick="breakStart()">
-        <i class="fas fa-coffee"></i> 休憩開始
-      </button>
-      <button class="btn-primary" onclick="breakEnd()">
-        <i class="fas fa-play"></i> 休憩終了
-      </button>
-      <button class="btn-danger" onclick="clockOut()">
-        <i class="fas fa-sign-out-alt"></i> 退勤
-      </button>
-    </div>
-
-    <div class="records">
-      <h3><i class="fas fa-table"></i> 勤怠記録</h3>
-      <div class="table-wrapper">
-        <table id="records-table">
-        <thead>
-          <tr>
-            <th>日付</th>
-            <th>出勤</th>
-            <th>退勤</th>
-            <th>休憩開始</th>
-            <th>休憩終了</th>
-          </tr>
-        </thead>
-        <tbody id="records-body"></tbody>
-      </table>
+      <div class="sidebar-footer">
+        <div class="user-info" style="margin-bottom: 0; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);">
+          <div class="user-avatar" id="sidebar-avatar">U</div>
+          <div class="user-details">
+            <p id="sidebar-name" style="font-size: 0.875rem;">読み込み中...</p>
+            <p class="user-role" id="sidebar-role" style="font-size: 0.75rem;"></p>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="logout()" style="width: 100%; margin-top: 0.75rem;">
+          <i class="fas fa-sign-out-alt"></i> ログアウト
+        </button>
+        <button id="admin-link-sidebar" class="btn-danger hidden" onclick="location.href='/admin'" style="width: 100%; margin-top: 0.5rem;">
+          <i class="fas fa-user-shield"></i> 管理者画面
+        </button>
       </div>
-    </div>
+    </aside>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Welcome Banner -->
+      <div class="welcome-banner animate-fade-in-up">
+        <div class="welcome-content">
+          <h1 class="welcome-greeting" id="greeting">おはようございます</h1>
+          <p class="welcome-time" id="current-time">--:--</p>
+        </div>
+      </div>
+
+      <!-- KPI Cards Grid -->
+      <div class="kpi-grid">
+        <!-- Today's Work Hours -->
+        <div class="kpi-card success stagger-item">
+          <div class="kpi-header">
+            <div class="kpi-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-value" id="today-hours">0</div>
+            <div class="kpi-label">今日の勤務時間 (時間)</div>
+          </div>
+          <div class="kpi-footer">
+            <div class="kpi-detail" id="today-status">未出勤</div>
+          </div>
+        </div>
+
+        <!-- This Month's Days -->
+        <div class="kpi-card stagger-item">
+          <div class="kpi-header">
+            <div class="kpi-icon">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="kpi-trend up">
+              <i class="fas fa-arrow-up"></i>
+              <span id="month-trend">+0</span>
+            </div>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-value" id="month-days">0</div>
+            <div class="kpi-label">今月の勤務日数</div>
+          </div>
+          <div class="kpi-footer">
+            <div class="kpi-detail">目標: 22日</div>
+          </div>
+        </div>
+
+        <!-- Average Clock In Time -->
+        <div class="kpi-card warning stagger-item">
+          <div class="kpi-header">
+            <div class="kpi-icon">
+              <i class="fas fa-sun"></i>
+            </div>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-value" id="avg-clock-in" style="font-size: 1.5rem;">--:--</div>
+            <div class="kpi-label">平均出勤時刻</div>
+          </div>
+          <div class="kpi-footer">
+            <div class="kpi-detail">標準: 9:00</div>
+          </div>
+        </div>
+
+        <!-- Total Hours This Month -->
+        <div class="kpi-card danger stagger-item">
+          <div class="kpi-header">
+            <div class="kpi-icon">
+              <i class="fas fa-business-time"></i>
+            </div>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-value" id="total-hours">0</div>
+            <div class="kpi-label">今月の総勤務時間</div>
+          </div>
+          <div class="kpi-footer">
+            <div class="kpi-detail">目標: 176時間</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card animate-fade-in-up" style="animation-delay: 0.2s;">
+        <h3><i class="fas fa-bolt"></i> クイックアクション</h3>
+        <div class="buttons">
+          <button class="btn-success" onclick="clockIn()">
+            <i class="fas fa-sign-in-alt"></i> 出勤
+          </button>
+          <button class="btn-warning" onclick="breakStart()">
+            <i class="fas fa-coffee"></i> 休憩開始
+          </button>
+          <button class="btn-primary" onclick="breakEnd()">
+            <i class="fas fa-play"></i> 休憩終了
+          </button>
+          <button class="btn-danger" onclick="clockOut()">
+            <i class="fas fa-sign-out-alt"></i> 退勤
+          </button>
+        </div>
+      </div>
+
+      <!-- Charts Grid -->
+      <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin: 2rem 0;">
+        <!-- Weekly Hours Chart -->
+        <div class="card animate-fade-in-up" style="animation-delay: 0.3s;">
+          <h3><i class="fas fa-chart-bar"></i> 今週の勤務時間</h3>
+          <canvas id="weeklyHoursChart" height="80"></canvas>
+        </div>
+
+        <!-- Two columns for medium+ screens -->
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+          <!-- Clock In/Out Trend -->
+          <div class="card animate-fade-in-up" style="animation-delay: 0.4s;">
+            <h3><i class="fas fa-chart-line"></i> 出退勤時刻の推移</h3>
+            <canvas id="clockTrendChart" height="100"></canvas>
+          </div>
+
+          <!-- Work Distribution -->
+          <div class="card animate-fade-in-up" style="animation-delay: 0.5s;">
+            <h3><i class="fas fa-chart-pie"></i> 勤務時間の内訳</h3>
+            <canvas id="workDistributionChart" height="100"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attendance Records -->
+      <div class="records animate-fade-in-up" style="animation-delay: 0.6s;">
+        <h3><i class="fas fa-table"></i> 勤怠記録</h3>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>日付</th>
+                <th>出勤</th>
+                <th>退勤</th>
+                <th>休憩開始</th>
+                <th>休憩終了</th>
+                <th>勤務時間</th>
+              </tr>
+            </thead>
+            <tbody id="records-body">
+              <!-- Skeleton Loading -->
+              <tr>
+                <td><div class="skeleton skeleton-text"></div></td>
+                <td><div class="skeleton skeleton-text"></div></td>
+                <td><div class="skeleton skeleton-text"></div></td>
+                <td><div class="skeleton skeleton-text"></div></td>
+                <td><div class="skeleton skeleton-text"></div></td>
+                <td><div class="skeleton skeleton-text"></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
   </div>
 
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+
   <script>
-    // Dark Mode Toggle
+    let charts = {};
+
+    // Sidebar Toggle
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // Theme Toggle (from app.js)
     function toggleTheme() {
-      const html = document.documentElement;
-      const currentTheme = html.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      const icon = document.getElementById('theme-icon');
-
-      html.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-
-      if (newTheme === 'dark') {
-        icon.className = 'fas fa-sun';
-      } else {
-        icon.className = 'fas fa-moon';
+      if (window.App && window.App.themeManager) {
+        window.App.themeManager.toggle();
       }
     }
 
-    // Load saved theme
-    (function() {
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      const icon = document.getElementById('theme-icon');
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      if (savedTheme === 'dark') {
-        icon.className = 'fas fa-sun';
-      }
-    })();
+    // Update Time
+    function updateTime() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+      const greeting = window.App ? window.App.getGreeting() : 'こんにちは';
 
+      document.getElementById('current-time').textContent = timeStr;
+      document.getElementById('greeting').textContent = greeting;
+    }
+
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // Authentication Check
     async function checkAuth() {
       try {
         const res = await fetch('/api/auth/me');
@@ -115,86 +264,348 @@
         }
 
         const user = await res.json();
-        console.log('🔍 デバッグ: ログインユーザー情報', user);
 
-        // Update user info
+        // Update user info in sidebar
         const initials = user.username.substring(0, 2).toUpperCase();
-        document.getElementById('user-avatar').textContent = initials;
-        document.getElementById('user-name').textContent = `${user.full_name || user.username}`;
-        document.getElementById('user-role').textContent = user.role === 'admin' ? '管理者' : 'ユーザー';
+        document.getElementById('sidebar-avatar').textContent = initials;
+        document.getElementById('sidebar-name').textContent = user.full_name || user.username;
+        document.getElementById('sidebar-role').textContent = user.role === 'admin' ? '管理者' : 'ユーザー';
 
-        // 管理者の場合、管理者画面リンクを表示
+        // Show admin link if admin
         if (user.role === 'admin') {
-          console.log('✅ 管理者として認識されました');
-          document.getElementById('admin-link').classList.remove('hidden');
+          document.getElementById('admin-link-sidebar').classList.remove('hidden');
         }
 
-        loadStatus();
-        loadRecords();
+        // Load data
+        await Promise.all([
+          loadRecords(),
+          loadStatistics()
+        ]);
+
+        initializeCharts();
       } catch (error) {
-        console.error('認証チェックエラー:', error);
+        console.error('認証エラー:', error);
         alert('認証エラーが発生しました');
         location.href = '/';
       }
     }
 
-    async function loadStatus() {
+    // Load Statistics
+    async function loadStatistics() {
       try {
-        const res = await fetch('/api/attendance/status');
-        const data = await res.json();
-        document.getElementById('status-message').textContent = data.message;
+        const res = await fetch('/api/attendance/records');
+        const records = await res.json();
+
+        if (!Array.isArray(records) || records.length === 0) {
+          return;
+        }
+
+        // Calculate statistics
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const thisMonth = now.getMonth();
+        const thisYear = now.getFullYear();
+
+        // Today's hours
+        const todayRecord = records.find(r => {
+          const recordDate = new Date(r.clock_in);
+          return recordDate.toDateString() === today.toDateString();
+        });
+
+        if (todayRecord) {
+          const clockIn = new Date(todayRecord.clock_in);
+          const clockOut = todayRecord.clock_out ? new Date(todayRecord.clock_out) : new Date();
+          const hours = ((clockOut - clockIn) / (1000 * 60 * 60)).toFixed(1);
+
+          window.App.animateNumber(document.getElementById('today-hours'), parseFloat(hours), 1000);
+          document.getElementById('today-status').textContent = todayRecord.clock_out ? '退勤済み' : '勤務中';
+        }
+
+        // This month's records
+        const monthRecords = records.filter(r => {
+          const recordDate = new Date(r.clock_in);
+          return recordDate.getMonth() === thisMonth && recordDate.getFullYear() === thisYear;
+        });
+
+        const monthDays = monthRecords.length;
+        window.App.animateNumber(document.getElementById('month-days'), monthDays, 1000);
+        document.getElementById('month-trend').textContent = `+${monthDays}`;
+
+        // Average clock-in time
+        const clockInTimes = monthRecords.map(r => {
+          const date = new Date(r.clock_in);
+          return date.getHours() + date.getMinutes() / 60;
+        });
+
+        if (clockInTimes.length > 0) {
+          const avgTime = clockInTimes.reduce((a, b) => a + b, 0) / clockInTimes.length;
+          const hours = Math.floor(avgTime);
+          const minutes = Math.round((avgTime - hours) * 60);
+          document.getElementById('avg-clock-in').textContent =
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        }
+
+        // Total hours this month
+        let totalHours = 0;
+        monthRecords.forEach(r => {
+          if (r.clock_out) {
+            const clockIn = new Date(r.clock_in);
+            const clockOut = new Date(r.clock_out);
+            totalHours += (clockOut - clockIn) / (1000 * 60 * 60);
+          }
+        });
+
+        window.App.animateNumber(document.getElementById('total-hours'), Math.round(totalHours), 1000);
+
       } catch (error) {
-        document.getElementById('status-message').textContent = 'エラー';
+        console.error('統計読み込みエラー:', error);
       }
     }
 
+    // Load Attendance Records
     async function loadRecords() {
       try {
         const res = await fetch('/api/attendance/records');
         const records = await res.json();
         const tbody = document.getElementById('records-body');
-        tbody.innerHTML = records.map(r => `
-          <tr>
-            <td>${new Date(r.clock_in).toLocaleDateString()}</td>
-            <td>${r.clock_in ? new Date(r.clock_in).toLocaleTimeString() : '-'}</td>
-            <td>${r.clock_out ? new Date(r.clock_out).toLocaleTimeString() : '-'}</td>
-            <td>${r.break_start ? new Date(r.break_start).toLocaleTimeString() : '-'}</td>
-            <td>${r.break_end ? new Date(r.break_end).toLocaleTimeString() : '-'}</td>
-          </tr>
-        `).join('');
+
+        if (!Array.isArray(records) || records.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-tertiary);">記録がありません</td></tr>';
+          return records || [];
+        }
+
+        tbody.innerHTML = records.map(r => {
+          const clockIn = r.clock_in ? new Date(r.clock_in) : null;
+          const clockOut = r.clock_out ? new Date(r.clock_out) : null;
+          const workHours = clockIn && clockOut ?
+            ((clockOut - clockIn) / (1000 * 60 * 60)).toFixed(1) : '-';
+
+          return `
+            <tr class="stagger-item">
+              <td>${clockIn ? clockIn.toLocaleDateString('ja-JP') : '-'}</td>
+              <td>${clockIn ? clockIn.toLocaleTimeString('ja-JP', {hour: '2-digit', minute: '2-digit'}) : '-'}</td>
+              <td>${clockOut ? clockOut.toLocaleTimeString('ja-JP', {hour: '2-digit', minute: '2-digit'}) : '-'}</td>
+              <td>${r.break_start ? new Date(r.break_start).toLocaleTimeString('ja-JP', {hour: '2-digit', minute: '2-digit'}) : '-'}</td>
+              <td>${r.break_end ? new Date(r.break_end).toLocaleTimeString('ja-JP', {hour: '2-digit', minute: '2-digit'}) : '-'}</td>
+              <td><strong>${workHours}${workHours !== '-' ? 'h' : ''}</strong></td>
+            </tr>
+          `;
+        }).join('');
+
+        return records;
       } catch (error) {
         console.error('記録読み込みエラー:', error);
+        return [];
       }
     }
 
+    // Initialize Charts
+    async function initializeCharts() {
+      const records = await loadRecords();
+      if (!records || records.length === 0) return;
+
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const textColor = isDark ? '#f1f5f9' : '#1f2937';
+      const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+      const chartDefaults = {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: textColor,
+              font: { size: 12, family: 'Inter, sans-serif' }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: textColor },
+            grid: { color: gridColor }
+          },
+          y: {
+            ticks: { color: textColor },
+            grid: { color: gridColor }
+          }
+        }
+      };
+
+      // Weekly Hours Chart
+      const weeklyData = getWeeklyData(records);
+      if (charts.weekly) charts.weekly.destroy();
+      charts.weekly = new Chart(document.getElementById('weeklyHoursChart'), {
+        type: 'bar',
+        data: {
+          labels: ['月', '火', '水', '木', '金', '土', '日'],
+          datasets: [{
+            label: '勤務時間',
+            data: weeklyData,
+            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+            borderColor: 'rgba(102, 126, 234, 1)',
+            borderWidth: 2,
+            borderRadius: 8
+          }]
+        },
+        options: {...chartDefaults, scales: {...chartDefaults.scales, x: chartDefaults.scales.x, y: {...chartDefaults.scales.y, beginAtZero: true}}}
+      });
+
+      // Clock Trend Chart
+      const trendData = getTrendData(records);
+      if (charts.trend) charts.trend.destroy();
+      charts.trend = new Chart(document.getElementById('clockTrendChart'), {
+        type: 'line',
+        data: {
+          labels: trendData.labels,
+          datasets: [{
+            label: '出勤時刻',
+            data: trendData.clockIn,
+            borderColor: 'rgba(16, 185, 129, 1)',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            tension: 0.4,
+            fill: true
+          }, {
+            label: '退勤時刻',
+            data: trendData.clockOut,
+            borderColor: 'rgba(239, 68, 68, 1)',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: chartDefaults
+      });
+
+      // Work Distribution Chart
+      const distribution = getDistributionData(records);
+      if (charts.distribution) charts.distribution.destroy();
+      charts.distribution = new Chart(document.getElementById('workDistributionChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['通常勤務', '早出', '残業', '休憩'],
+          datasets: [{
+            data: distribution,
+            backgroundColor: [
+              'rgba(102, 126, 234, 0.8)',
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(239, 68, 68, 0.8)',
+              'rgba(245, 158, 11, 0.8)'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: textColor,
+                padding: 15,
+                font: { size: 12 }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Helper functions for chart data
+    function getWeeklyData(records) {
+      const today = new Date();
+      const weekData = [0, 0, 0, 0, 0, 0, 0];
+
+      records.forEach(r => {
+        if (r.clock_in && r.clock_out) {
+          const date = new Date(r.clock_in);
+          const dayOfWeek = (date.getDay() + 6) % 7; // Monday = 0
+          const hours = (new Date(r.clock_out) - date) / (1000 * 60 * 60);
+          weekData[dayOfWeek] += hours;
+        }
+      });
+
+      return weekData.map(h => h.toFixed(1));
+    }
+
+    function getTrendData(records) {
+      const last7 = records.slice(-7);
+      return {
+        labels: last7.map(r => new Date(r.clock_in).toLocaleDateString('ja-JP', {month: 'short', day: 'numeric'})),
+        clockIn: last7.map(r => {
+          const d = new Date(r.clock_in);
+          return d.getHours() + d.getMinutes() / 60;
+        }),
+        clockOut: last7.map(r => {
+          if (!r.clock_out) return null;
+          const d = new Date(r.clock_out);
+          return d.getHours() + d.getMinutes() / 60;
+        })
+      };
+    }
+
+    function getDistributionData(records) {
+      let normal = 0, early = 0, overtime = 0, breaks = 0;
+
+      records.forEach(r => {
+        if (!r.clock_out) return;
+        const hours = (new Date(r.clock_out) - new Date(r.clock_in)) / (1000 * 60 * 60);
+        if (hours <= 8) normal += hours;
+        else overtime += hours - 8;
+      });
+
+      return [normal.toFixed(1), early.toFixed(1), overtime.toFixed(1), breaks.toFixed(1)];
+    }
+
+    // Attendance Actions
     async function clockIn() {
-      const res = await fetch('/api/attendance/clock-in', { method: 'POST' });
-      const data = await res.json();
-      alert(data.message || data.error);
-      loadStatus();
-      loadRecords();
+      try {
+        const res = await fetch('/api/attendance/clock-in', { method: 'POST' });
+        const data = await res.json();
+        window.App.showToast(data.message || data.error, res.ok ? 'success' : 'error');
+        if (res.ok) {
+          await loadRecords();
+          await loadStatistics();
+          initializeCharts();
+        }
+      } catch (error) {
+        window.App.showToast('エラーが発生しました', 'error');
+      }
     }
 
     async function clockOut() {
-      const res = await fetch('/api/attendance/clock-out', { method: 'POST' });
-      const data = await res.json();
-      alert(data.message || data.error);
-      loadStatus();
-      loadRecords();
+      try {
+        const res = await fetch('/api/attendance/clock-out', { method: 'POST' });
+        const data = await res.json();
+        window.App.showToast(data.message || data.error, res.ok ? 'success' : 'error');
+        if (res.ok) {
+          await loadRecords();
+          await loadStatistics();
+          initializeCharts();
+        }
+      } catch (error) {
+        window.App.showToast('エラーが発生しました', 'error');
+      }
     }
 
     async function breakStart() {
-      const res = await fetch('/api/attendance/break-start', { method: 'POST' });
-      const data = await res.json();
-      alert(data.message || data.error);
-      loadStatus();
+      try {
+        const res = await fetch('/api/attendance/break-start', { method: 'POST' });
+        const data = await res.json();
+        window.App.showToast(data.message || data.error, res.ok ? 'success' : 'error');
+      } catch (error) {
+        window.App.showToast('エラーが発生しました', 'error');
+      }
     }
 
     async function breakEnd() {
-      const res = await fetch('/api/attendance/break-end', { method: 'POST' });
-      const data = await res.json();
-      alert(data.message || data.error);
-      loadStatus();
+      try {
+        const res = await fetch('/api/attendance/break-end', { method: 'POST' });
+        const data = await res.json();
+        window.App.showToast(data.message || data.error, res.ok ? 'success' : 'error');
+      } catch (error) {
+        window.App.showToast('エラーが発生しました', 'error');
+      }
     }
 
     async function logout() {
@@ -202,7 +613,7 @@
       location.href = '/';
     }
 
-    // ページ読み込み時に認証チェック
+    // Initialize on load
     checkAuth();
   </script>
 

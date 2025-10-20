@@ -460,5 +460,3 @@ window.App = {
   formatDuration,
   formatDate
 };
-
-console.log('✨ App utilities loaded successfully');

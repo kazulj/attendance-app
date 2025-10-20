@@ -146,9 +146,6 @@
         const res = await fetch('/api/auth/me');
         if (res.ok) {
           const user = await res.json();
-          console.log('🔍 デバッグ: ログインユーザー情報', user);
-          console.log('🔍 デバッグ: ユーザーのrole =', user.role);
-          console.log('🔍 デバッグ: 管理者判定 =', user.role === 'admin');
 
           document.getElementById('auth-section').classList.add('hidden');
           document.getElementById('register-section').classList.add('hidden');
@@ -156,10 +153,7 @@
 
           // 管理者の場合、管理者画面リンクを表示
           if (user.role === 'admin') {
-            console.log('✅ 管理者として認識されました。管理者ボタンを表示します。');
             document.getElementById('admin-link').classList.remove('hidden');
-          } else {
-            console.log('ℹ️ 通常ユーザーとして認識されました。管理者ボタンは非表示です。');
           }
 
           loadStatus();
@@ -184,8 +178,6 @@
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
 
-      console.log('🔍 デバッグ: ログイン試行', { username });
-
       try {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
@@ -193,20 +185,15 @@
           body: JSON.stringify({ username, password })
         });
 
-        console.log('🔍 デバッグ: ログインレスポンスステータス', res.status);
-
         if (res.ok) {
           const data = await res.json();
-          console.log('🔍 デバッグ: ログイン成功データ', data);
           alert('ログイン成功！ダッシュボードに移動します。');
           location.href = '/dashboard';
         } else {
           const data = await res.json();
-          console.error('🔍 デバッグ: ログイン失敗', data);
           alert('ログイン失敗: ' + data.error);
         }
       } catch (error) {
-        console.error('🔍 デバッグ: ログインエラー', error);
         alert('ログインエラー: ' + error.message);
       }
     }
@@ -226,7 +213,6 @@
 
         if (res.ok) {
           const data = await res.json();
-          console.log('🔍 デバッグ: 登録レスポンス', data);
           alert(data.message || '登録成功！');
           location.href = '/dashboard';
         } else {
