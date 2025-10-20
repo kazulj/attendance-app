@@ -55,7 +55,17 @@ app.use(session({
   }
 }));
 
-app.use(express.static('public'));
+// 静的ファイルの配信（キャッシュ無効化ヘッダー付き）
+app.use(express.static('public', {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.css') || path.endsWith('.js')) {
+      // CSSとJSファイルはキャッシュを無効化
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
+}));
 
 // ルート
 app.use('/api/auth', authRoutes);
