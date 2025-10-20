@@ -4,20 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ダッシュボード - 勤怠管理</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+  <!-- Dark Mode Toggle -->
+  <div class="theme-toggle" onclick="toggleTheme()" title="テーマ切り替え">
+    <i class="fas fa-moon" id="theme-icon"></i>
+  </div>
+
   <div class="container">
-    <h1>🕐 勤怠管理ダッシュボード</h1>
+    <h1><i class="fas fa-chart-line"></i> 勤怠管理ダッシュボード</h1>
 
     <div class="user-info">
-      <p id="user-info">読み込み中...</p>
+      <div class="user-avatar" id="user-avatar">U</div>
+      <div class="user-details">
+        <p id="user-name">読み込み中...</p>
+        <p class="user-role" id="user-role"></p>
+      </div>
     </div>
 
     <div class="nav-buttons">
-      <button class="btn-primary" onclick="location.href='/'">ホーム</button>
-      <button id="admin-link" class="btn-danger hidden" onclick="location.href='/admin'">管理者画面</button>
-      <button class="btn-primary" onclick="logout()">ログアウト</button>
+      <button class="btn-primary" onclick="location.href='/'">
+        <i class="fas fa-home"></i> ホーム
+      </button>
+      <button id="admin-link" class="btn-danger hidden" onclick="location.href='/admin'">
+        <i class="fas fa-user-shield"></i> 管理者画面
+      </button>
+      <button class="btn-primary" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> ログアウト
+      </button>
     </div>
 
     <div class="status-card">
@@ -26,14 +42,22 @@
     </div>
 
     <div class="buttons">
-      <button class="btn-success" onclick="clockIn()">出勤</button>
-      <button class="btn-warning" onclick="breakStart()">休憩開始</button>
-      <button class="btn-primary" onclick="breakEnd()">休憩終了</button>
-      <button class="btn-danger" onclick="clockOut()">退勤</button>
+      <button class="btn-success" onclick="clockIn()">
+        <i class="fas fa-sign-in-alt"></i> 出勤
+      </button>
+      <button class="btn-warning" onclick="breakStart()">
+        <i class="fas fa-coffee"></i> 休憩開始
+      </button>
+      <button class="btn-primary" onclick="breakEnd()">
+        <i class="fas fa-play"></i> 休憩終了
+      </button>
+      <button class="btn-danger" onclick="clockOut()">
+        <i class="fas fa-sign-out-alt"></i> 退勤
+      </button>
     </div>
 
     <div class="records">
-      <h3>勤怠記録</h3>
+      <h3><i class="fas fa-table"></i> 勤怠記録</h3>
       <div class="table-wrapper">
         <table id="records-table">
         <thead>
@@ -52,6 +76,33 @@
   </div>
 
   <script>
+    // Dark Mode Toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      const icon = document.getElementById('theme-icon');
+
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+
+      if (newTheme === 'dark') {
+        icon.className = 'fas fa-sun';
+      } else {
+        icon.className = 'fas fa-moon';
+      }
+    }
+
+    // Load saved theme
+    (function() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      const icon = document.getElementById('theme-icon');
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      if (savedTheme === 'dark') {
+        icon.className = 'fas fa-sun';
+      }
+    })();
+
     async function checkAuth() {
       try {
         const res = await fetch('/api/auth/me');
@@ -64,8 +115,11 @@
         const user = await res.json();
         console.log('🔍 デバッグ: ログインユーザー情報', user);
 
-        document.getElementById('user-info').textContent =
-          `ようこそ、${user.username} さん（権限: ${user.role === 'admin' ? '管理者' : 'ユーザー'}）`;
+        // Update user info
+        const initials = user.username.substring(0, 2).toUpperCase();
+        document.getElementById('user-avatar').textContent = initials;
+        document.getElementById('user-name').textContent = `${user.full_name || user.username}`;
+        document.getElementById('user-role').textContent = user.role === 'admin' ? '管理者' : 'ユーザー';
 
         // 管理者の場合、管理者画面リンクを表示
         if (user.role === 'admin') {

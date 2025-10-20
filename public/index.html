@@ -4,11 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>勤怠管理アプリ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+  <!-- Dark Mode Toggle -->
+  <div class="theme-toggle" onclick="toggleTheme()" title="テーマ切り替え">
+    <i class="fas fa-moon" id="theme-icon"></i>
+  </div>
+
   <div class="container">
-    <h1>🕐 勤怠管理システム</h1>
+    <div class="app-logo">
+      <i class="fas fa-clock"></i>
+    </div>
+    <h1>勤怠管理システム</h1>
 
     <!-- ログインフォーム -->
     <div id="auth-section" class="auth-section">
@@ -19,8 +28,12 @@
       <div class="form-group">
         <input type="password" id="password" placeholder="パスワード">
       </div>
-      <button class="btn-primary" onclick="login()">ログイン</button>
-      <button class="btn-success" onclick="showRegister()">新規登録</button>
+      <button class="btn-primary" onclick="login()">
+        <i class="fas fa-sign-in-alt"></i> ログイン
+      </button>
+      <button class="btn-success" onclick="showRegister()">
+        <i class="fas fa-user-plus"></i> 新規登録
+      </button>
     </div>
 
     <!-- 登録フォーム -->
@@ -38,8 +51,12 @@
       <div class="form-group">
         <input type="password" id="reg-password" placeholder="パスワード">
       </div>
-      <button class="btn-success" onclick="register()">登録</button>
-      <button class="btn-primary" onclick="showLogin()">ログインに戻る</button>
+      <button class="btn-success" onclick="register()">
+        <i class="fas fa-user-plus"></i> 登録
+      </button>
+      <button class="btn-primary" onclick="showLogin()">
+        <i class="fas fa-arrow-left"></i> ログインに戻る
+      </button>
     </div>
 
     <!-- メインコンテンツ -->
@@ -50,15 +67,27 @@
       </div>
 
       <div class="buttons">
-        <button class="btn-success" onclick="clockIn()">出勤</button>
-        <button class="btn-warning" onclick="breakStart()">休憩開始</button>
-        <button class="btn-primary" onclick="breakEnd()">休憩終了</button>
-        <button class="btn-danger" onclick="clockOut()">退勤</button>
+        <button class="btn-success" onclick="clockIn()">
+          <i class="fas fa-sign-in-alt"></i> 出勤
+        </button>
+        <button class="btn-warning" onclick="breakStart()">
+          <i class="fas fa-coffee"></i> 休憩開始
+        </button>
+        <button class="btn-primary" onclick="breakEnd()">
+          <i class="fas fa-play"></i> 休憩終了
+        </button>
+        <button class="btn-danger" onclick="clockOut()">
+          <i class="fas fa-sign-out-alt"></i> 退勤
+        </button>
       </div>
 
       <div class="nav-buttons">
-        <button class="btn-primary" onclick="logout()">ログアウト</button>
-        <button id="admin-link" class="btn-danger hidden" onclick="location.href='/admin'">管理者画面</button>
+        <button class="btn-primary" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> ログアウト
+        </button>
+        <button id="admin-link" class="btn-danger hidden" onclick="location.href='/admin'">
+          <i class="fas fa-user-shield"></i> 管理者画面
+        </button>
       </div>
 
       <div class="records">
@@ -82,6 +111,34 @@
   </div>
 
   <script>
+    // Dark Mode Toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      const icon = document.getElementById('theme-icon');
+
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+
+      // Update icon
+      if (newTheme === 'dark') {
+        icon.className = 'fas fa-sun';
+      } else {
+        icon.className = 'fas fa-moon';
+      }
+    }
+
+    // Load saved theme on page load
+    (function() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      const icon = document.getElementById('theme-icon');
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      if (savedTheme === 'dark') {
+        icon.className = 'fas fa-sun';
+      }
+    })();
+
     async function checkAuth() {
       try {
         const res = await fetch('/api/auth/me');
