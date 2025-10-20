@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>勤怠管理アプリ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/themes.css">
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/css/animations.css">
 </head>
-<body>
+<body class="preload">
   <!-- Dark Mode Toggle -->
   <div class="theme-toggle" onclick="toggleTheme()" title="テーマ切り替え">
     <i class="fas fa-moon" id="theme-icon"></i>
@@ -302,5 +304,8 @@
 
     checkAuth();
   </script>
+
+  <!-- App Utilities -->
+  <script src="/js/app.js"></script>
 </body>
 </html>
