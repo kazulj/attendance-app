@@ -87,8 +87,13 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// サーバー起動
-app.listen(PORT, () => {
-  console.log(`勤怠管理アプリがポート${PORT}で起動しました`);
-  console.log(`環境: ${process.env.NODE_ENV || 'development'}`);
-});
+// サーバー起動 (Vercel以外の環境用)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`勤怠管理アプリがポート${PORT}で起動しました`);
+    console.log(`環境: ${process.env.NODE_ENV || 'development'}`);
+  });
+}
+
+// Vercel用にappをエクスポート
+module.exports = app;
