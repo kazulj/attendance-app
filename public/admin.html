@@ -39,16 +39,35 @@
 
     <div class="section">
       <h2 class="section-title"><i class="fas fa-users"></i> ユーザー一覧</h2>
+
+      <!-- Table Controls -->
+      <div class="table-controls">
+        <div class="table-search">
+          <i class="fas fa-search"></i>
+          <input type="text" id="user-search" placeholder="ユーザーを検索..." onkeyup="filterUsers()">
+        </div>
+        <div class="table-filter">
+          <select id="role-filter" onchange="filterUsers()">
+            <option value="">全ての権限</option>
+            <option value="admin">管理者</option>
+            <option value="user">ユーザー</option>
+          </select>
+          <button class="btn-primary" onclick="exportUsersCSV()">
+            <i class="fas fa-download"></i> CSV出力
+          </button>
+        </div>
+      </div>
+
       <div class="table-wrapper">
         <table id="users-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>ユーザー名</th>
-            <th>メール</th>
-            <th>氏名</th>
-            <th>権限</th>
-            <th>登録日</th>
+            <th class="sortable" onclick="sortUsers('id')">ID</th>
+            <th class="sortable" onclick="sortUsers('username')">ユーザー名</th>
+            <th class="sortable" onclick="sortUsers('email')">メール</th>
+            <th class="sortable" onclick="sortUsers('full_name')">氏名</th>
+            <th class="sortable" onclick="sortUsers('role')">権限</th>
+            <th class="sortable" onclick="sortUsers('created_at')">登録日</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -129,30 +148,121 @@
       }
     }
 
+    let allUsers = [];
+    let sortColumn = 'id';
+    let sortDirection = 'asc';
+
     async function loadUsers() {
       try {
         const res = await fetch('/api/admin/users');
         if (!res.ok) throw new Error('権限がありません');
 
-        const users = await res.json();
-        const tbody = document.getElementById('users-body');
-
-        tbody.innerHTML = users.map(u => `
-          <tr>
-            <td>${u.id}</td>
-            <td>${u.username}</td>
-            <td>${u.email}</td>
-            <td>${u.full_name}</td>
-            <td><span class="badge badge-${u.role}">${u.role === 'admin' ? '管理者' : 'ユーザー'}</span></td>
-            <td>${new Date(u.created_at).toLocaleDateString()}</td>
-            <td>
-              ${u.role !== 'admin' ? `<button class="btn-primary" onclick="promoteUser(${u.id}, '${u.username}')">管理者に昇格</button>` : '-'}
-            </td>
-          </tr>
-        `).join('');
+        allUsers = await res.json();
+        displayUsers(allUsers);
       } catch (error) {
         alert('ユーザー一覧の取得に失敗しました: ' + error.message);
       }
+    }
+
+    function displayUsers(users) {
+      const tbody = document.getElementById('users-body');
+
+      tbody.innerHTML = users.map(u => `
+        <tr>
+          <td>${u.id}</td>
+          <td>${u.username}</td>
+          <td>${u.email}</td>
+          <td>${u.full_name}</td>
+          <td><span class="badge badge-${u.role}">${u.role === 'admin' ? '管理者' : 'ユーザー'}</span></td>
+          <td>${new Date(u.created_at).toLocaleDateString()}</td>
+          <td>
+            ${u.role !== 'admin' ? `<button class="btn-primary" onclick="promoteUser(${u.id}, '${u.username}')">管理者に昇格</button>` : '-'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterUsers() {
+      const searchTerm = document.getElementById('user-search').value.toLowerCase();
+      const roleFilter = document.getElementById('role-filter').value;
+
+      let filtered = allUsers.filter(user => {
+        const matchesSearch =
+          user.username.toLowerCase().includes(searchTerm) ||
+          user.email.toLowerCase().includes(searchTerm) ||
+          user.full_name.toLowerCase().includes(searchTerm);
+
+        const matchesRole = !roleFilter || user.role === roleFilter;
+
+        return matchesSearch && matchesRole;
+      });
+
+      displayUsers(filtered);
+    }
+
+    function sortUsers(column) {
+      // Update sort direction
+      if (sortColumn === column) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortColumn = column;
+        sortDirection = 'asc';
+      }
+
+      // Update UI
+      document.querySelectorAll('th.sortable').forEach(th => {
+        th.classList.remove('sorted-asc', 'sorted-desc');
+      });
+      event.target.classList.add(`sorted-${sortDirection}`);
+
+      // Sort data
+      const sorted = [...allUsers].sort((a, b) => {
+        let aVal = a[column];
+        let bVal = b[column];
+
+        // Handle dates
+        if (column === 'created_at') {
+          aVal = new Date(aVal).getTime();
+          bVal = new Date(bVal).getTime();
+        }
+
+        // Handle strings
+        if (typeof aVal === 'string') {
+          aVal = aVal.toLowerCase();
+          bVal = bVal.toLowerCase();
+        }
+
+        if (sortDirection === 'asc') {
+          return aVal > bVal ? 1 : -1;
+        } else {
+          return aVal < bVal ? 1 : -1;
+        }
+      });
+
+      displayUsers(sorted);
+    }
+
+    function exportUsersCSV() {
+      const headers = ['ID', 'ユーザー名', 'メール', '氏名', '権限', '登録日'];
+      const rows = allUsers.map(u => [
+        u.id,
+        u.username,
+        u.email,
+        u.full_name,
+        u.role === 'admin' ? '管理者' : 'ユーザー',
+        new Date(u.created_at).toLocaleDateString()
+      ]);
+
+      let csvContent = headers.join(',') + '\n';
+      csvContent += rows.map(row => row.join(',')).join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `users_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+
+      window.App.toastManager.show('CSV出力が完了しました', 'success');
     }
 
     async function loadAllAttendance() {

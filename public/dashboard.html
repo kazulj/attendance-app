@@ -68,6 +68,37 @@
 
     <!-- Main Content -->
     <main class="main-content">
+      <!-- Top Bar with Notifications -->
+      <div class="dashboard-topbar">
+        <div class="topbar-search">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="検索... (Ctrl+K)">
+        </div>
+        <div class="topbar-actions">
+          <div class="notification-bell" onclick="toggleNotificationCenter()">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="notification-count">3</span>
+          </div>
+          <div class="user-menu">
+            <div class="user-avatar" id="user-avatar">U</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notification Center -->
+      <div class="notification-center hidden" id="notification-center">
+        <div class="notification-header">
+          <h3>通知</h3>
+          <div class="notification-actions">
+            <button onclick="markAllRead()">すべて既読</button>
+            <button onclick="clearNotifications()">クリア</button>
+          </div>
+        </div>
+        <div class="notification-list" id="notification-list">
+          <!-- Notifications will be populated here -->
+        </div>
+      </div>
+
       <!-- Welcome Banner -->
       <div class="welcome-banner animate-fade-in-up">
         <div class="welcome-content">
@@ -613,8 +644,67 @@
       location.href = '/';
     }
 
+    // Notification Center
+    let notifications = [
+      { id: 1, type: 'success', title: '出勤完了', message: '本日の出勤が記録されました', time: '2分前', unread: true },
+      { id: 2, type: 'info', title: '週報提出', message: '今週の週報を提出してください', time: '1時間前', unread: true },
+      { id: 3, type: 'warning', title: '勤務時間超過', message: '今月の残業時間が20時間を超えています', time: '3時間前', unread: true }
+    ];
+
+    function toggleNotificationCenter() {
+      const center = document.getElementById('notification-center');
+      center.classList.toggle('hidden');
+      if (!center.classList.contains('hidden')) {
+        renderNotifications();
+      }
+    }
+
+    function renderNotifications() {
+      const list = document.getElementById('notification-list');
+      const count = document.getElementById('notification-count');
+
+      const unreadCount = notifications.filter(n => n.unread).length;
+      count.textContent = unreadCount;
+      count.style.display = unreadCount > 0 ? 'flex' : 'none';
+
+      list.innerHTML = notifications.map(n => `
+        <div class="notification-item ${n.unread ? 'unread' : ''}" onclick="markAsRead(${n.id})">
+          <div class="notification-icon ${n.type}">
+            <i class="fas fa-${n.type === 'success' ? 'check' : n.type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+          </div>
+          <div class="notification-content">
+            <p class="notification-title">${n.title}</p>
+            <p class="notification-message">${n.message}</p>
+            <p class="notification-time">${n.time}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function markAsRead(id) {
+      const notification = notifications.find(n => n.id === id);
+      if (notification) {
+        notification.unread = false;
+        renderNotifications();
+      }
+    }
+
+    function markAllRead() {
+      notifications.forEach(n => n.unread = false);
+      renderNotifications();
+      window.App.showToast('すべて既読にしました', 'success');
+    }
+
+    function clearNotifications() {
+      notifications = [];
+      renderNotifications();
+      toggleNotificationCenter();
+      window.App.showToast('通知をクリアしました', 'info');
+    }
+
     // Initialize on load
     checkAuth();
+    renderNotifications();
   </script>
 
   <!-- App Utilities -->

@@ -351,13 +351,209 @@ const modalManager = new ModalManager();
 // KEYBOARD SHORTCUTS
 // ============================================
 
-document.addEventListener('keydown', (e) => {
-  // Ctrl/Cmd + K for theme toggle
-  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-    e.preventDefault();
-    toggleTheme();
+class KeyboardShortcuts {
+  constructor() {
+    this.shortcuts = new Map();
+    this.commandPaletteVisible = false;
+    this.init();
   }
-});
+
+  init() {
+    document.addEventListener('keydown', (e) => this.handleKeydown(e));
+    this.registerDefaultShortcuts();
+  }
+
+  registerDefaultShortcuts() {
+    // Ctrl/Cmd + K: Command Palette
+    this.register(['ctrl+k', 'meta+k'], (e) => {
+      e.preventDefault();
+      this.toggleCommandPalette();
+    });
+
+    // Ctrl/Cmd + /: Help
+    this.register(['ctrl+/', 'meta+/'], (e) => {
+      e.preventDefault();
+      this.showHelp();
+    });
+
+    // Escape: Close modals/palettes
+    this.register(['escape'], (e) => {
+      if (this.commandPaletteVisible) {
+        e.preventDefault();
+        this.hideCommandPalette();
+      }
+      // Close any open modals
+      document.querySelectorAll('.modal:not(.hidden)').forEach(modal => {
+        modal.classList.add('hidden');
+      });
+    });
+
+    // Ctrl/Cmd + B: Toggle Sidebar (on dashboard)
+    this.register(['ctrl+b', 'meta+b'], (e) => {
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar) {
+        e.preventDefault();
+        sidebar.classList.toggle('collapsed');
+      }
+    });
+
+    // Ctrl/Cmd + D: Go to Dashboard
+    this.register(['ctrl+d', 'meta+d'], (e) => {
+      e.preventDefault();
+      window.location.href = '/dashboard';
+    });
+
+    // Ctrl/Cmd + H: Go to Home
+    this.register(['ctrl+h', 'meta+h'], (e) => {
+      e.preventDefault();
+      window.location.href = '/';
+    });
+  }
+
+  register(keys, callback) {
+    if (!Array.isArray(keys)) keys = [keys];
+    keys.forEach(key => this.shortcuts.set(key, callback));
+  }
+
+  handleKeydown(e) {
+    const key = this.getKeyString(e);
+    const callback = this.shortcuts.get(key);
+    if (callback) callback(e);
+  }
+
+  getKeyString(e) {
+    const parts = [];
+    if (e.ctrlKey) parts.push('ctrl');
+    if (e.metaKey) parts.push('meta');
+    if (e.altKey) parts.push('alt');
+    if (e.shiftKey && e.key.length > 1) parts.push('shift');
+
+    const key = e.key.toLowerCase();
+    if (!['control', 'meta', 'alt', 'shift'].includes(key)) {
+      parts.push(key);
+    }
+
+    return parts.join('+');
+  }
+
+  toggleCommandPalette() {
+    if (this.commandPaletteVisible) {
+      this.hideCommandPalette();
+    } else {
+      this.showCommandPalette();
+    }
+  }
+
+  showCommandPalette() {
+    this.commandPaletteVisible = true;
+
+    // Create command palette if it doesn't exist
+    if (!document.getElementById('command-palette')) {
+      this.createCommandPalette();
+    }
+
+    const palette = document.getElementById('command-palette');
+    palette.classList.remove('hidden');
+    palette.querySelector('input').focus();
+  }
+
+  hideCommandPalette() {
+    this.commandPaletteVisible = false;
+    const palette = document.getElementById('command-palette');
+    if (palette) {
+      palette.classList.add('hidden');
+    }
+  }
+
+  createCommandPalette() {
+    const palette = document.createElement('div');
+    palette.id = 'command-palette';
+    palette.className = 'command-palette hidden';
+    palette.innerHTML = `
+      <div class="command-palette-backdrop" onclick="keyboardShortcuts.hideCommandPalette()"></div>
+      <div class="command-palette-content">
+        <div class="command-palette-search">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="コマンドを検索..." onkeyup="keyboardShortcuts.filterCommands(this.value)">
+        </div>
+        <div class="command-palette-results" id="command-results">
+          ${this.getCommandsList()}
+        </div>
+      </div>
+    `;
+    document.body.appendChild(palette);
+  }
+
+  getCommandsList() {
+    const commands = [
+      { icon: 'home', label: 'ダッシュボード', action: '/dashboard', shortcut: 'Ctrl+D' },
+      { icon: 'clock', label: '出勤', action: 'clockIn', shortcut: '' },
+      { icon: 'sign-out-alt', label: '退勤', action: 'clockOut', shortcut: '' },
+      { icon: 'user', label: 'プロフィール', action: '/profile', shortcut: '' },
+      { icon: 'cog', label: '設定', action: '/settings', shortcut: '' },
+      { icon: 'moon', label: 'テーマ切り替え', action: 'toggleTheme', shortcut: '' },
+      { icon: 'question-circle', label: 'ヘルプ', action: 'help', shortcut: 'Ctrl+/' },
+    ];
+
+    return commands.map(cmd => `
+      <div class="command-item" onclick="keyboardShortcuts.executeCommand('${cmd.action}')">
+        <div class="command-icon"><i class="fas fa-${cmd.icon}"></i></div>
+        <div class="command-label">${cmd.label}</div>
+        ${cmd.shortcut ? `<div class="command-shortcut">${cmd.shortcut}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  filterCommands(query) {
+    const results = document.querySelectorAll('.command-item');
+    results.forEach(item => {
+      const label = item.querySelector('.command-label').textContent.toLowerCase();
+      if (label.includes(query.toLowerCase())) {
+        item.style.display = 'flex';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  }
+
+  executeCommand(action) {
+    this.hideCommandPalette();
+
+    if (action.startsWith('/')) {
+      window.location.href = action;
+    } else if (action === 'toggleTheme') {
+      toggleTheme();
+    } else if (action === 'help') {
+      this.showHelp();
+    } else if (typeof window[action] === 'function') {
+      window[action]();
+    }
+  }
+
+  showHelp() {
+    const shortcuts = [
+      { keys: 'Ctrl+K', description: 'コマンドパレットを開く' },
+      { keys: 'Ctrl+/', description: 'ヘルプを表示' },
+      { keys: 'Ctrl+D', description: 'ダッシュボードに移動' },
+      { keys: 'Ctrl+B', description: 'サイドバーを切り替え' },
+      { keys: 'Escape', description: 'モーダルを閉じる' },
+    ];
+
+    const helpContent = shortcuts.map(s => `
+      <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle);">
+        <span style="font-family: monospace; background: var(--bg-tertiary); padding: 0.25rem 0.5rem; border-radius: 4px;">${s.keys}</span>
+        <span>${s.description}</span>
+      </div>
+    `).join('');
+
+    window.App.toastManager.show('ショートカットキー一覧を確認してください', 'info', 5000);
+
+    // Could create a modal here for better display
+    console.log('Keyboard Shortcuts:', shortcuts);
+  }
+}
+
+const keyboardShortcuts = new KeyboardShortcuts();
 
 // ============================================
 // PAGE LOAD ANIMATIONS
