@@ -205,28 +205,49 @@
     }
 
     async function register() {
+      console.log('=== Register function called ===');
+
       const username = document.getElementById('reg-username').value;
       const email = document.getElementById('reg-email').value;
       const full_name = document.getElementById('reg-fullname').value;
       const password = document.getElementById('reg-password').value;
 
+      console.log('Form values:', { username, email, full_name, passwordLength: password.length });
+
+      // Input validation
+      if (!username || !email || !full_name || !password) {
+        alert('全ての項目を入力してください');
+        return;
+      }
+
       try {
+        console.log('Sending registration request...');
         const res = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, email, full_name, password })
         });
 
+        console.log('Response status:', res.status);
+
         if (res.ok) {
           const data = await res.json();
+          console.log('Registration successful:', data);
           alert(data.message || '登録成功！');
+          console.log('Redirecting to dashboard...');
           location.href = '/dashboard';
         } else {
           const data = await res.json();
+          console.error('Registration failed:', data);
           alert('登録失敗: ' + data.error);
         }
       } catch (error) {
-        alert('登録エラー');
+        console.error('Registration error details:', {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        });
+        alert('登録エラー: ' + error.message);
       }
     }
 
