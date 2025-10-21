@@ -26,6 +26,8 @@ Value: postgresql://attendance_db_mh0w_user:yY8XVjfZtpZSm8DxLrTI0b1VIj5Vao9g@dpg
 Environment: Production, Preview, Development (全て選択)
 ```
 
+**重要**: 環境変数名は必ず`DATABASE_URL`（全て大文字）にしてください。スペースや余分な文字が入っていないか確認してください。
+
 #### SESSION_SECRET
 ```
 Name: SESSION_SECRET

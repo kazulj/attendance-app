@@ -1,5 +1,15 @@
 const { Pool } = require('pg');
 
+// Ensure DATABASE_URL is available
+if (!process.env.DATABASE_URL) {
+  console.error('CRITICAL ERROR: DATABASE_URL environment variable is not set!');
+  console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('DATA') || k.includes('DB')));
+  throw new Error('DATABASE_URL is required but not found in environment variables');
+}
+
+console.log('Database connection string detected:', process.env.DATABASE_URL ? 'Yes' : 'No');
+console.log('Database host:', process.env.DATABASE_URL?.split('@')[1]?.split('/')[0] || 'unknown');
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.DATABASE_URL?.includes('render.com')
