@@ -1,18 +1,30 @@
 const { Pool } = require('pg');
 
-// Ensure DATABASE_URL is available
+// TEMPORARY: Fallback DATABASE_URL for testing Vercel environment variable issues
+const FALLBACK_DATABASE_URL = 'postgresql://attendance_db_mh0w_user:yY8XVjfZtpZSm8DxLrTI0b1VIj5Vao9g@dpg-d3p4nkruibrs73epej2g-a.singapore-postgres.render.com/attendance_db_mh0w';
+
+console.log('=== Database Connection Debug ===');
+console.log('DATABASE_URL from process.env:', process.env.DATABASE_URL ? 'EXISTS' : 'UNDEFINED');
+console.log('All env vars with DATABASE:', Object.keys(process.env).filter(k => k.includes('DATABASE')));
+console.log('All env vars with DB:', Object.keys(process.env).filter(k => k.includes('DB')));
+console.log('Total env vars count:', Object.keys(process.env).length);
+
+// Use environment variable if available, otherwise fallback
+const databaseUrl = process.env.DATABASE_URL || FALLBACK_DATABASE_URL;
+
 if (!process.env.DATABASE_URL) {
-  console.error('CRITICAL ERROR: DATABASE_URL environment variable is not set!');
-  console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('DATA') || k.includes('DB')));
-  throw new Error('DATABASE_URL is required but not found in environment variables');
+  console.warn('WARNING: DATABASE_URL not found in environment, using fallback URL');
+  console.warn('This should not happen in production!');
+  console.warn('Please check Vercel Dashboard -> Settings -> Environment Variables');
+} else {
+  console.log('SUCCESS: DATABASE_URL loaded from environment');
 }
 
-console.log('Database connection string detected:', process.env.DATABASE_URL ? 'Yes' : 'No');
-console.log('Database host:', process.env.DATABASE_URL?.split('@')[1]?.split('/')[0] || 'unknown');
+console.log('Database host:', databaseUrl.split('@')[1]?.split('/')[0] || 'unknown');
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL?.includes('render.com')
+  connectionString: databaseUrl,
+  ssl: databaseUrl.includes('render.com')
     ? { rejectUnauthorized: false }
     : (process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false)
 });
