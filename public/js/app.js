@@ -422,6 +422,9 @@ class KeyboardShortcuts {
   }
 
   getKeyString(e) {
+    // Guard against undefined key
+    if (!e.key) return '';
+
     const parts = [];
     if (e.ctrlKey) parts.push('ctrl');
     if (e.metaKey) parts.push('meta');
