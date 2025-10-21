@@ -59,7 +59,7 @@
           <div class="password-strength-text" id="strength-text"></div>
         </div>
       </div>
-      <button class="btn-success" onclick="register()">
+      <button class="btn-success" onclick="handleRegister()">
         <i class="fas fa-user-plus"></i> 登録
       </button>
       <button class="btn-primary" onclick="showLogin()">
@@ -204,7 +204,7 @@
       }
     }
 
-    async function register() {
+    async function handleRegister() {
       console.log('=== Register function called ===');
 
       const username = document.getElementById('reg-username').value;
