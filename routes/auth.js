@@ -6,23 +6,40 @@ const pool = require('../database/init-postgres');
 // ユーザー登録
 router.post('/register', async (req, res) => {
   try {
+    console.log('=== Registration request received ===');
+    console.log('Request body:', req.body);
+    console.log('Request headers:', req.headers);
+
     const { username, email, password, full_name } = req.body;
 
+    if (!username || !email || !password || !full_name) {
+      return res.status(400).json({ error: '全ての項目を入力してください' });
+    }
+
+    console.log('Hashing password...');
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('Password hashed successfully');
 
     // 既存ユーザー数を確認
+    console.log('Checking user count...');
     const countResult = await pool.query('SELECT COUNT(*) FROM users');
     const userCount = parseInt(countResult.rows[0].count);
+    console.log('User count:', userCount);
 
     // ユーザーが0人の場合は管理者、それ以外は通常ユーザー
     const role = userCount === 0 ? 'admin' : 'user';
+    console.log('Assigned role:', role);
 
+    console.log('Inserting user into database...');
     const result = await pool.query(
       'INSERT INTO users (username, email, password, full_name, role) VALUES ($1, $2, $3, $4, $5) RETURNING id, username, role',
       [username, email, hashedPassword, full_name, role]
     );
 
     const user = result.rows[0];
+    console.log('User created:', { id: user.id, username: user.username, role: user.role });
+
+    console.log('Setting session...');
     req.session.userId = user.id;
     req.session.username = user.username;
     req.session.role = user.role;
@@ -31,8 +48,11 @@ router.post('/register', async (req, res) => {
       ? '登録成功！最初のユーザーとして管理者権限が付与されました。'
       : '登録成功';
 
+    console.log('Registration successful');
     res.json({ message, user: { id: user.id, username: user.username, role: user.role } });
   } catch (error) {
+    console.error('Registration error:', error);
+    console.error('Error stack:', error.stack);
     res.status(400).json({ error: 'ユーザー登録に失敗しました: ' + error.message });
   }
 });
