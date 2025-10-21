@@ -28,6 +28,7 @@ router.post('/register', async (req, res) => {
 
     const user = result.rows[0];
 
+    // セッションを設定して保存
     req.session.userId = user.id;
     req.session.username = user.username;
     req.session.role = user.role;
@@ -36,7 +37,14 @@ router.post('/register', async (req, res) => {
       ? '登録成功！最初のユーザーとして管理者権限が付与されました。'
       : '登録成功';
 
-    res.json({ message, user: { id: user.id, username: user.username, role: user.role } });
+    // セッションを明示的に保存してからレスポンスを返す
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'セッション保存に失敗しました' });
+      }
+      res.json({ message, user: { id: user.id, username: user.username, role: user.role } });
+    });
   } catch (error) {
     console.error('Registration error:', error);
     res.status(400).json({ error: 'ユーザー登録に失敗しました: ' + error.message });
@@ -61,12 +69,21 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'ユーザー名またはパスワードが正しくありません' });
     }
 
+    // セッションを設定して保存
     req.session.userId = user.id;
     req.session.username = user.username;
     req.session.role = user.role;
 
-    res.json({ message: 'ログイン成功', user: { id: user.id, username: user.username, role: user.role } });
+    // セッションを明示的に保存してからレスポンスを返す
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'セッション保存に失敗しました' });
+      }
+      res.json({ message: 'ログイン成功', user: { id: user.id, username: user.username, role: user.role } });
+    });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ error: 'ログインに失敗しました' });
   }
 });
