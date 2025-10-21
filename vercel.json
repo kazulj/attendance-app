@@ -1,27 +1,15 @@
 {
   "version": 2,
-  "builds": [
+  "buildCommand": "npm install",
+  "outputDirectory": "public",
+  "rewrites": [
     {
-      "src": "api/index.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/css/(.*)",
-      "dest": "/public/css/$1"
+      "source": "/api/:path*",
+      "destination": "/api/index.js"
     },
     {
-      "src": "/js/(.*)",
-      "dest": "/public/js/$1"
-    },
-    {
-      "src": "/(.*\\.(css|js|html|png|jpg|jpeg|gif|svg|ico))",
-      "dest": "/public/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/index.js"
+      "source": "/:path*",
+      "destination": "/api/index.js"
     }
   ]
 }
