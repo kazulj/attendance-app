@@ -4,7 +4,22 @@ const session = require('express-session');
 const path = require('path');
 require('dotenv').config();
 
-// Import routes
+// Debug: Log environment variables availability
+console.log('=== Vercel Environment Variables Check ===');
+console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+console.log('SESSION_SECRET exists:', !!process.env.SESSION_SECRET);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('All env vars starting with DATABASE:', Object.keys(process.env).filter(k => k.includes('DATABASE')));
+
+// Critical: Verify DATABASE_URL before importing routes
+if (!process.env.DATABASE_URL) {
+  console.error('CRITICAL ERROR: DATABASE_URL is not set in Vercel environment!');
+  console.error('Please check Vercel Dashboard -> Settings -> Environment Variables');
+  console.error('Available env keys:', Object.keys(process.env).slice(0, 20));
+  throw new Error('DATABASE_URL environment variable is required but not found');
+}
+
+// Import routes (these will initialize database connection)
 const authRoutes = require('../routes/auth');
 const attendanceRoutes = require('../routes/attendance');
 const adminRoutes = require('../routes/admin');
