@@ -33,6 +33,10 @@ router.post('/register', async (req, res) => {
     req.session.username = user.username;
     req.session.role = user.role;
 
+    console.log('=== Registration successful - saving session ===');
+    console.log('Session before save:', req.session);
+    console.log('Session ID:', req.sessionID);
+
     const message = role === 'admin'
       ? '登録成功！最初のユーザーとして管理者権限が付与されました。'
       : '登録成功';
@@ -43,6 +47,8 @@ router.post('/register', async (req, res) => {
         console.error('Session save error:', err);
         return res.status(500).json({ error: 'セッション保存に失敗しました' });
       }
+      console.log('Session saved successfully');
+      console.log('Session after save:', req.session);
       res.json({ message, user: { id: user.id, username: user.username, role: user.role } });
     });
   } catch (error) {
@@ -74,12 +80,18 @@ router.post('/login', async (req, res) => {
     req.session.username = user.username;
     req.session.role = user.role;
 
+    console.log('=== Login successful - saving session ===');
+    console.log('Session before save:', req.session);
+    console.log('Session ID:', req.sessionID);
+
     // セッションを明示的に保存してからレスポンスを返す
     req.session.save((err) => {
       if (err) {
         console.error('Session save error:', err);
         return res.status(500).json({ error: 'セッション保存に失敗しました' });
       }
+      console.log('Session saved successfully');
+      console.log('Session after save:', req.session);
       res.json({ message: 'ログイン成功', user: { id: user.id, username: user.username, role: user.role } });
     });
   } catch (error) {
@@ -96,13 +108,23 @@ router.post('/logout', (req, res) => {
 
 // 現在のユーザー情報
 router.get('/me', (req, res) => {
+  console.log('=== /api/auth/me called ===');
+  console.log('Session ID:', req.sessionID);
+  console.log('Session data:', req.session);
+  console.log('Session userId:', req.session?.userId);
+  console.log('Session username:', req.session?.username);
+  console.log('Session role:', req.session?.role);
+  console.log('Cookie:', req.headers.cookie);
+
   if (req.session && req.session.userId) {
+    console.log('User is logged in:', req.session.userId);
     res.json({
       id: req.session.userId,
       username: req.session.username,
       role: req.session.role
     });
   } else {
+    console.log('User is NOT logged in - no session found');
     res.status(401).json({ error: '未ログイン' });
   }
 });
