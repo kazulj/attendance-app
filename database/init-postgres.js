@@ -1,32 +1,14 @@
 const { Pool } = require('pg');
 
-// TEMPORARY: Fallback DATABASE_URL for testing Vercel environment variable issues
-const FALLBACK_DATABASE_URL = 'postgresql://attendance_db_mh0w_user:yY8XVjfZtpZSm8DxLrTI0b1VIj5Vao9g@dpg-d3p4nkruibrs73epej2g-a.singapore-postgres.render.com/attendance_db_mh0w';
+// HARDCODED DATABASE_URL - Temporary solution to bypass environment variable issues
+const DATABASE_URL = 'postgresql://attendance_db_mh0w_user:yY8XVjfZtpZSm8DxLrTI0b1VIj5Vao9g@dpg-d3p4nkruibrs73epej2g-a.singapore-postgres.render.com/attendance_db_mh0w';
 
-console.log('=== Database Connection Debug ===');
-console.log('DATABASE_URL from process.env:', process.env.DATABASE_URL ? 'EXISTS' : 'UNDEFINED');
-console.log('All env vars with DATABASE:', Object.keys(process.env).filter(k => k.includes('DATABASE')));
-console.log('All env vars with DB:', Object.keys(process.env).filter(k => k.includes('DB')));
-console.log('Total env vars count:', Object.keys(process.env).length);
-
-// Use environment variable if available, otherwise fallback
-const databaseUrl = process.env.DATABASE_URL || FALLBACK_DATABASE_URL;
-
-if (!process.env.DATABASE_URL) {
-  console.warn('WARNING: DATABASE_URL not found in environment, using fallback URL');
-  console.warn('This should not happen in production!');
-  console.warn('Please check Vercel Dashboard -> Settings -> Environment Variables');
-} else {
-  console.log('SUCCESS: DATABASE_URL loaded from environment');
-}
-
-console.log('Database host:', databaseUrl.split('@')[1]?.split('/')[0] || 'unknown');
+console.log('Database connection initialized');
+console.log('Database host:', DATABASE_URL.split('@')[1]?.split('/')[0]);
 
 const pool = new Pool({
-  connectionString: databaseUrl,
-  ssl: databaseUrl.includes('render.com')
-    ? { rejectUnauthorized: false }
-    : (process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false)
+  connectionString: DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
 
 // テーブルを作成

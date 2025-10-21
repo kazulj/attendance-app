@@ -4,14 +4,7 @@ const session = require('express-session');
 const path = require('path');
 require('dotenv').config();
 
-// Debug: Log environment variables availability
-console.log('=== Vercel Environment Variables Check ===');
-console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
-console.log('SESSION_SECRET exists:', !!process.env.SESSION_SECRET);
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('All env vars starting with DATABASE:', Object.keys(process.env).filter(k => k.includes('DATABASE')));
-
-// Import routes (database/init-postgres.js will handle DATABASE_URL with fallback)
+// Import routes
 const authRoutes = require('../routes/auth');
 const attendanceRoutes = require('../routes/attendance');
 const adminRoutes = require('../routes/admin');
