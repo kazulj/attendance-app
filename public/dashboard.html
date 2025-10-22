@@ -26,19 +26,19 @@
       </div>
 
       <nav class="sidebar-nav">
-        <a href="/dashboard" class="nav-item active">
+        <a href="#" class="nav-item active" id="nav-dashboard">
           <i class="fas fa-home"></i>
           <span>ダッシュボード</span>
         </a>
-        <a href="#attendance" class="nav-item">
+        <a href="#" class="nav-item" id="nav-attendance">
           <i class="fas fa-calendar-check"></i>
           <span>勤怠記録</span>
         </a>
-        <a href="#statistics" class="nav-item">
+        <a href="#" class="nav-item" id="nav-statistics">
           <i class="fas fa-chart-line"></i>
           <span>統計</span>
         </a>
-        <a href="#settings" class="nav-item">
+        <a href="#" class="nav-item" id="nav-settings">
           <i class="fas fa-cog"></i>
           <span>設定</span>
         </a>
@@ -258,6 +258,63 @@
 
   <script>
     let charts = {};
+
+    // Setup navigation - execute immediately since script is at bottom
+    (function() {
+      // Dashboard navigation
+      const navDashboard = document.getElementById('nav-dashboard');
+      if (navDashboard) {
+        navDashboard.onclick = function(e) {
+          e.preventDefault();
+          document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return false;
+        };
+      }
+
+      // Attendance navigation
+      const navAttendance = document.getElementById('nav-attendance');
+      if (navAttendance) {
+        navAttendance.onclick = function(e) {
+          e.preventDefault();
+          document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+          const target = document.querySelector('.records');
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          return false;
+        };
+      }
+
+      // Statistics navigation
+      const navStatistics = document.getElementById('nav-statistics');
+      if (navStatistics) {
+        navStatistics.onclick = function(e) {
+          e.preventDefault();
+          document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+          const target = document.querySelector('.kpi-grid');
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          return false;
+        };
+      }
+
+      // Settings navigation
+      const navSettings = document.getElementById('nav-settings');
+      if (navSettings) {
+        navSettings.onclick = function(e) {
+          e.preventDefault();
+          document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+          alert('設定機能は準備中です');
+          return false;
+        };
+      }
+    })();
 
     // Sidebar Toggle
     function toggleSidebar() {
@@ -604,9 +661,35 @@
 
       records.forEach(r => {
         if (!r.clock_out) return;
-        const hours = (new Date(r.clock_out) - new Date(r.clock_in)) / (1000 * 60 * 60);
-        if (hours <= 8) normal += hours;
-        else overtime += hours - 8;
+
+        const clockIn = new Date(r.clock_in);
+        const clockOut = new Date(r.clock_out);
+        const totalHours = (clockOut - clockIn) / (1000 * 60 * 60);
+
+        // Calculate break time if exists
+        let breakHours = 0;
+        if (r.break_start && r.break_end) {
+          breakHours = (new Date(r.break_end) - new Date(r.break_start)) / (1000 * 60 * 60);
+          breaks += breakHours;
+        }
+
+        // Net working hours (excluding breaks)
+        const workHours = totalHours - breakHours;
+
+        // Check if early (clock in before 9:00)
+        const clockInHour = clockIn.getHours() + clockIn.getMinutes() / 60;
+        if (clockInHour < 9 && workHours > 0) {
+          const earlyHours = Math.min(9 - clockInHour, workHours);
+          early += earlyHours;
+        }
+
+        // Split into normal (8h) and overtime
+        if (workHours <= 8) {
+          normal += workHours;
+        } else {
+          normal += 8;
+          overtime += workHours - 8;
+        }
       });
 
       return [normal.toFixed(1), early.toFixed(1), overtime.toFixed(1), breaks.toFixed(1)];
